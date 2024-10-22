@@ -15,6 +15,7 @@
 #include <fmt/core.h>
 #include <fmt/format.h>
 #include <itertools.hpp>
+#include <sqlite3.h>
 
 
 #include "config/TerminalConfig.hpp"
@@ -135,104 +136,269 @@ inline void runCMDQuery(const std::shared_ptr<QueryExecutionPackage> &query_pack
 	}
 }
 
-void commandlineInterface(QueryExecutionPackage_cache &querypackage_cache) {
-	std::string sparql_str;
-	while (std::getline(std::cin, sparql_str)) {
+void insertTentrisQueryRuntime(sqlite3* db, int queryID, long long tentrisExecutionTime) {
+	char* errorMessage = 0;
 
-		query_start = steady_clock::now();
+	// SQL update query for TentrisQueryRuntime
+	std::string updateSQL = "UPDATE QueryData SET TentrisQueryRuntime = ? WHERE rowid = ?;";
+
+	sqlite3_stmt* stmt;
+	int rc = sqlite3_prepare_v2(db, updateSQL.c_str(), -1, &stmt, nullptr);
+	if (rc != SQLITE_OK) {
+		std::cerr << "Failed to prepare update statement for TentrisQueryRuntime: " << sqlite3_errmsg(db) << std::endl;
+		return;
+	}
+
+	// Bind TentrisQueryRuntime and QueryID
+	sqlite3_bind_int64(stmt, 1, tentrisExecutionTime);
+	sqlite3_bind_int(stmt, 2, queryID);
+
+	// Execute the update
+	rc = sqlite3_step(stmt);
+	if (rc != SQLITE_DONE) {
+		std::cerr << "Failed to update TentrisQueryRuntime: " << sqlite3_errmsg(db) << std::endl;
+	}
+
+	// Clean up
+	sqlite3_finalize(stmt);
+}
+
+void insertDRLQueryRuntime(sqlite3* db, int queryID, long long drlExecutionTime) {
+	char* errorMessage = 0;
+
+	// SQL update query for DRLQueryRuntime
+	std::string updateSQL = "UPDATE QueryData SET DRLQueryRuntime = ? WHERE rowid = ?;";
+
+	sqlite3_stmt* stmt;
+	int rc = sqlite3_prepare_v2(db, updateSQL.c_str(), -1, &stmt, nullptr);
+	if (rc != SQLITE_OK) {
+		std::cerr << "Failed to prepare update statement for DRLQueryRuntime: " << sqlite3_errmsg(db) << std::endl;
+		return;
+	}
+
+	// Bind DRLQueryRuntime and QueryID
+	sqlite3_bind_int64(stmt, 1, drlExecutionTime);
+	sqlite3_bind_int(stmt, 2, queryID);
+
+	// Execute the update
+	rc = sqlite3_step(stmt);
+	if (rc != SQLITE_DONE) {
+		std::cerr << "Failed to update DRLQueryRuntime: " << sqlite3_errmsg(db) << std::endl;
+	}
+
+	// Clean up
+	sqlite3_finalize(stmt);
+}
+
+long long fetchQueryRuntimeFromSQLite(sqlite3* db, int queryID) {
+	std::string selectSQL = "SELECT TentrisQueryRuntime FROM QueryData WHERE rowid = ?;";
+	sqlite3_stmt* stmt;
+	long long queryRuntime = 0;
+
+	int rc = sqlite3_prepare_v2(db, selectSQL.c_str(), -1, &stmt, nullptr);
+	if (rc != SQLITE_OK) {
+		std::cerr << "Failed to prepare select statement: " << sqlite3_errmsg(db) << std::endl;
+		return queryRuntime;
+	}
+
+	// Bind the query ID to the statement
+	sqlite3_bind_int(stmt, 1, queryID);
+
+	// Execute the statement and fetch the QueryRuntime
+	if (sqlite3_step(stmt) == SQLITE_ROW) {
+		queryRuntime = sqlite3_column_int64(stmt, 0); // Get the QueryRuntime
+	} else {
+		std::cerr << "Failed to fetch QueryRuntime: " << sqlite3_errmsg(db) << std::endl;
+	}
+
+	// Clean up
+	sqlite3_finalize(stmt);
+	std::cout << "Tentris Query Runtime fetched from the db is " << queryRuntime << std::endl;
+	return queryRuntime;
+}
 
 
-		number_of_bindings = 0;
-		::error = Errors::OK;
+// Function to read SPARQL queries from the SQLite database
+std::vector<std::pair<int, std::string>> readSparqlQueriesFromDatabase(sqlite3* db) {
+	std::vector<std::pair<int, std::string>> queries;
+	std::string selectSQL = "SELECT rowid, QueryString FROM QueryData;"; // Fetch rowid and QueryString from the table
+
+	sqlite3_stmt* stmt;
+	int rc = sqlite3_prepare_v2(db, selectSQL.c_str(), -1, &stmt, nullptr);
+	if (rc != SQLITE_OK) {
+		std::cerr << "Failed to prepare select statement: " << sqlite3_errmsg(db) << std::endl;
+		return queries;
+	}
+
+	// Execute the statement and fetch each row
+	while (sqlite3_step(stmt) == SQLITE_ROW) {
+		int queryID = sqlite3_column_int(stmt, 0); // Get the rowid
+		const char* queryText = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 1)); // Get the SPARQL query string
+		if (queryText) {
+			queries.emplace_back(queryID, std::string(queryText));
+		}
+	}
+
+	// Clean up
+	sqlite3_finalize(stmt);
+	return queries;
+}
+
+std::vector<std::string> readSparqlQueriesFromCsv(const std::string &csv_filepath) {
+	std::vector<std::string> queries;
+	std::ifstream file(csv_filepath);
+	if (!file.is_open()) {
+		logsink() << fmt::format("Error: Could not open file {}\n", csv_filepath);
+		return queries;
+	}
+
+	// Skip the first line (title of the column)
+	std::string line;
+	if (!std::getline(file, line)) {
+		logsink() << fmt::format("Error: Failed to read the first line (title) from {}\n", csv_filepath);
+		return queries;
+	}
+
+	// Read each subsequent line (SPARQL queries)
+	while (std::getline(file, line)) {
+		if (!line.empty()) {
+			logsink() << fmt::format("Read query: {}\n", line);  // Log the query
+			queries.push_back(line);
+		}
+	}
+
+	file.close();
+	return queries;
+}
 
 
+//void commandlineInterface(QueryExecutionPackage_cache& querypackage_cache, sqlite3* db) {	//for loading queries from database
+void commandlineInterface(QueryExecutionPackage_cache& querypackage_cache, sqlite3* db, std::string file_path) {	//for loading queries from csv
+	std::shared_ptr<QueryExecutionPackage> query_package;
+
+	// Read SPARQL queries from the database
+	std::vector<std::pair<int, std::string>> sparql_queries = readSparqlQueriesFromDatabase(db);
+
+	//Read SPARQL queries from csv file
+//	std::vector<std::string> sparql_queries = readSparqlQueriesFromCsv(file_path);
+	for (const auto& [queryID, sparql_str] : sparql_queries) {	//uncomment when loading queries from database
+//	for (const auto& sparql_str : sparql_queries) {	//uncomment when loading queries from csv file
 		try {
-			parse_start = steady_clock::now();
-			std::shared_ptr<QueryExecutionPackage> query_package = querypackage_cache[sparql_str];
+			logsink() << fmt::format("Processing query (ID: {}): {}\n", queryID, sparql_str);	//uncomment when loading queries from database
+//			logsink() << fmt::format("Processing query: {}\n",  sparql_str); //uncomment when loading queries from csv file
 
-			timeout = steady_clock::now() + cfg.timeout;
+			query_start = steady_clock::now();
+			number_of_bindings = 0;
+			::error = Errors::OK;
 
-			parse_end = steady_clock::now();
-			execute_start = steady_clock::now();
-
-			switch (query_package->getSelectModifier()) {
-				case SelectModifier::NONE: {
-					runCMDQuery<COUNTED_t>(query_package, timeout);
-					break;
+			try {
+				parse_start = steady_clock::now();
+				query_package = querypackage_cache[sparql_str];
+				// Fetch QueryRuntime from the database
+				long long queryRuntime = fetchQueryRuntimeFromSQLite(db, queryID); //uncomment when loading queries from database
+				//uncomment the below if else part if loading queries from database
+//				// If no runtime is available, use the default timeout (if required)
+				if (queryRuntime == 0) {
+					timeout = steady_clock::now() + cfg.timeout;
 				}
-				case SelectModifier::REDUCE:
-					[[fallthrough]];
-				case SelectModifier::DISTINCT: {
-					runCMDQuery<DISTINCT_t>(query_package, timeout);
-					break;
+				else {
+					// Set timeout to 2 times the QueryRuntime
+					timeout = steady_clock::now() + std::chrono::nanoseconds(static_cast<long long>(queryRuntime * 3));
+					// Calculate the time duration between now and the timeout value
+					auto duration_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(timeout - steady_clock::now()).count();
+					std::cout << "The timeout for this query is " << duration_ns << " nanoseconds from now." << std::endl;
+
 				}
+//				timeout = steady_clock::now() + cfg.timeout; //tentris default
+
+				parse_end = steady_clock::now();
+				execute_start = steady_clock::now();
+
+				switch (query_package->getSelectModifier()) {
+					case SelectModifier::NONE: {
+						runCMDQuery<COUNTED_t>(query_package, timeout);
+						break;
+					}
+					case SelectModifier::REDUCE:
+						[[fallthrough]];
+					case SelectModifier::DISTINCT: {
+						runCMDQuery<DISTINCT_t>(query_package, timeout);
+						break;
+					}
+					default:
+						break;
+				}
+			} catch (const std::invalid_argument& e) {
+				::error = Errors::UNPARSABLE;
+				logDebug(fmt::format("UNPARSABLE reason: {}", e.what()));
+			} catch (const std::exception& e) {
+				::error = Errors::UNEXPECTED;
+				logDebug(fmt::format("UNEXPECTED reason: {}", e.what()));
+			} catch (...) {
+				::error = Errors::SEVERE_UNEXPECTED;
+			}
+
+			query_end = steady_clock::now();
+
+			auto parsing_time = duration_cast<std::chrono::nanoseconds>(parse_end - parse_start);
+			auto execution_time = duration_cast<std::chrono::nanoseconds>(execute_end - execute_start);
+			auto total_time = duration_cast<std::chrono::nanoseconds>(query_end - query_start);
+			auto serialization_time = total_time - execution_time - parsing_time;
+
+			// Insert execution time into SQLite
+//			insertTentrisQueryRuntime(db, query_package->queryID, execution_time.count());
+			insertDRLQueryRuntime(db, query_package->queryID, execution_time.count());
+
+			switch (::error) {
+				case Errors::OK:
+					logsink() << "SUCCESSFUL\n";
+					break;
+				case Errors::UNPARSABLE:
+					logsink() << "ERROR: UNPARSABLE QUERY\n";
+					break;
+				case Errors::PROCESSING_TIMEOUT:
+					logsink() << "ERROR: TIMEOUT DURING PROCESSING\n";
+					break;
+				case Errors::SERIALIZATION_TIMEOUT:
+					logsink() << "ERROR: TIMEOUT DURING SERIALIZATION\n";
+					break;
+				case Errors::UNEXPECTED:
+					logsink() << "ERROR: UNEXPECTED\n";
+					break;
+				case Errors::SEVERE_UNEXPECTED:
+					logsink() << "ERROR: SEVERE UNEXPECTED\n";
+					break;
 				default:
 					break;
 			}
-		} catch (const std::invalid_argument &e) {
-			::error = Errors::UNPARSABLE;
-			logDebug(fmt::format("UNPARSABLE reason: {}", e.what()));
-		} catch (const std::exception &e) {
-			::error = Errors::UNEXPECTED;
-			logDebug(fmt::format("UNEXPECTED reason: {}", e.what()));
+
+			logsink() << fmt::format("start: {}\n", tp2s(query_start));
+			logsink() << fmt::format("planned timeout: {}\n", tp2s(timeout));
+			if (::error == Errors::PROCESSING_TIMEOUT || ::error == Errors::SERIALIZATION_TIMEOUT)
+				logsink() << fmt::format("actual timeout: {}\n", tp2s(actual_timeout));
+			logsink() << fmt::format("end: {}\n", tp2s(query_end));
+
+			if (::error == Errors::OK || ::error == Errors::PROCESSING_TIMEOUT ||
+				::error == Errors::SERIALIZATION_TIMEOUT) {
+				logsink() << "number of bindings: " << fmt::format("{:18}", number_of_bindings) << "\n";
+				logsink() << "parsing time:       " << fmt::format("{:18}", parsing_time.count()) << " ns\n";
+				logsink() << "execution time:     " << fmt::format("{:18}", execution_time.count()) << " ns\n";
+				if (::error != Errors::PROCESSING_TIMEOUT)
+					logsink() << "serialization time: " << fmt::format("{:18}", serialization_time.count()) << " ns\n";
+			}
+
+			logsink() << "total time: " << fmt::format("{:18}", total_time.count()) << " ns\n";
+			logsink() << "total time: "
+					  << fmt::format("{:12}", duration_cast<std::chrono::milliseconds>(total_time).count())
+					  << " ms\n";
+
+			logsink().flush();
+		} catch (const std::exception& e) {
+			logsink() << "Critical Error: " << e.what() << ". Continuing with the next query.\n";
 		} catch (...) {
-			::error = Errors::SEVERE_UNEXPECTED;
-		}
-		query_end = steady_clock::now();
-
-
-		auto parsing_time = duration_cast<std::chrono::nanoseconds>(parse_end - parse_start);
-		auto execution_time = duration_cast<std::chrono::nanoseconds>(execute_end - execute_start);
-		auto total_time = duration_cast<std::chrono::nanoseconds>(query_end - query_start);
-		auto serialization_time = total_time - execution_time - parsing_time;
-		switch (::error) {
-			case Errors::OK:
-				logsink() << "SUCCESSFUL\n";
-				break;
-			case Errors::UNPARSABLE:
-				logsink() << "ERROR: UNPARSABLE QUERY\n";
-				break;
-			case Errors::PROCESSING_TIMEOUT:
-				logsink() << "ERROR: TIMEOUT DURING PROCESSING\n";
-				break;
-			case Errors::SERIALIZATION_TIMEOUT:
-				logsink() << "ERROR: TIMEOUT DURING SERIALIZATION\n";
-				break;
-			case Errors::UNEXPECTED:
-				logsink() << "ERROR: UNEXPECTED\n";
-				break;
-			case Errors::SEVERE_UNEXPECTED:
-				logsink() << "ERROR: SEVERE UNEXPECTED\n";
-				break;
-			default:
-				break;
+			logsink() << "Critical Error: Unknown exception. Continuing with the next query.\n";
 		}
 
-
-		logsink() << fmt::format("start:              {}\n", tp2s(query_start));
-		logsink() << fmt::format("planned timeout:    {}\n", tp2s(timeout));
-		if (::error == Errors::PROCESSING_TIMEOUT or ::error == Errors::SERIALIZATION_TIMEOUT)
-			logsink() << fmt::format("actual timeout:     {}\n", tp2s(actual_timeout));
-		logsink() << fmt::format("end:                {}\n", tp2s(query_end));
-
-		if (::error == Errors::OK or ::error == Errors::PROCESSING_TIMEOUT or
-			::error == Errors::SERIALIZATION_TIMEOUT) {
-			logsink() << "number of bindings: " << fmt::format("{:18}", number_of_bindings) << "\n";
-
-			logsink() << "parsing time:       " << fmt::format("{:18}", parsing_time.count()) << " ns\n";
-
-
-			logsink() << "execution time:     " << fmt::format("{:18}", execution_time.count()) << " ns\n";
-			if (::error != Errors::PROCESSING_TIMEOUT)
-				logsink() << "serialization time: " << fmt::format("{:18}", serialization_time.count()) << " ns\n";
-		}
-
-		logsink() << "total time:         " << fmt::format("{:18}", total_time.count()) << " ns\n";
-		logsink() << "total time:         "
-				  << fmt::format("{:12}", duration_cast<std::chrono::milliseconds>(total_time).count())
-				  << "       ms\n";
-
-		logsink().flush();
 	}
 	std::raise(SIGINT);
 }
@@ -264,8 +430,25 @@ int main(int argc, char *argv[]) {
 				(duration_cast<seconds>(duration) % 60).count()) << std::endl;
 	}
 
+	//path to csv file containing queries
+	std::string file_path = "/home/sohail/CLionProjects/tentris/watdiv_queries.csv";
 
-	std::thread commandline_client{commandlineInterface, std::ref(executionpackage_cache)};
+	// Path to your SQLite database
+	std::string db_path = "/home/sohail/CLionProjects/tentris/query_data.db";
+	sqlite3* db;
+
+	// Open the SQLite database
+	if (sqlite3_open(db_path.c_str(), &db)) {
+		std::cerr << "Can't open database: " << sqlite3_errmsg(db) << std::endl;
+		return 1;
+	}
+
+	// Use the SQLite database
+	std::thread commandline_client{[&executionpackage_cache, db, file_path]() {
+		commandlineInterface(executionpackage_cache, db, file_path);
+	}};
+
+
 	// wait for keyboard interrupt
 	while (true) {
 		sigset_t wset;

@@ -25,6 +25,7 @@ namespace tentris::tensor {
 	using DISTINCT_t = bool;
 	using COUNTED_t = std::size_t;
 	using Subscript = hypertrie::Subscript ;
+	using CardinalityEstimation = einsum::internal::CardinalityEstimation<tr>;
 }
 
 #endif //TENTRIS_BOOLHYPERTRIE_HPP

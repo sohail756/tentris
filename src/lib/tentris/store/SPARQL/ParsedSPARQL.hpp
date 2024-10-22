@@ -27,6 +27,9 @@
 #include <Dice/RDF/Triple.hpp>
 #include <Dice/SPARQL/TriplePattern.hpp>
 
+#include "tentris/util/CSVWriter.hpp"
+#include <algorithm> // For std::find
+
 
 namespace tentris::store::sparql {
 
@@ -84,21 +87,26 @@ namespace tentris::store::sparql {
 		using CommonTokenStream = antlr4::CommonTokenStream;
 		using QueryContext = SparqlParser::QueryContext;
 		std::string sparql_str;
+		std::vector<Variable> joinVariables;
 
 		SelectModifier select_modifier = NONE;
 
 		robin_hood::unordered_map<std::string, std::string> prefixes{};
+		using Label = Subscript::Label;
 		std::vector<Variable> query_variables{};
 		robin_hood::unordered_set<Variable> variables{};
 		robin_hood::unordered_set<Variable> anonym_variables{};
 		std::vector<TriplePattern> bgps;
 		uint next_anon_var_id = 0;
 		std::shared_ptr<Subscript> subscript;
+		std::shared_ptr<tensor::CardinalityEstimation> cardinalityestimation;
+		robin_hood::unordered_map<Variable, int> variable_count;  // To store the count of each variable
 
 	public:
 
 		ParsedSPARQL() = default;
 
+		robin_hood::unordered_map<Variable, Label> var_to_label{};
 
 		explicit ParsedSPARQL(std::string sparqlstr) :
 				sparql_str{std::move(sparqlstr)} {
@@ -149,16 +157,20 @@ namespace tentris::store::sparql {
 
 					VarOrTerm subj = parseVarOrTerm(triplesSameSubject->varOrTerm());
 					registerVariable(subj);
+					increaseVariableCount(subj);  // Increase the count for subject
+
 					SparqlParser::PropertyListNotEmptyContext *propertyListNotEmpty = triplesSameSubject->propertyListNotEmpty();
-					for (auto[pred_node, obj_nodes] : iter::zip(propertyListNotEmpty->verb(),
-																propertyListNotEmpty->objectList())) {
+					for (auto [pred_node, obj_nodes] : iter::zip(propertyListNotEmpty->verb(),
+																 propertyListNotEmpty->objectList())) {
 						VarOrTerm pred = parseVerb(pred_node);
 						registerVariable(pred);
+						increaseVariableCount(pred);  // Increase the count for predicate
 
 						for (auto &obj_node : obj_nodes->object()) {
 							VarOrTerm obj = parseObject(obj_node);
 							registerVariable(obj);
-							if(ranges::find(bgps, TriplePattern{subj, pred, obj}) == bgps.end())
+							increaseVariableCount(obj);  // Increase the count for object
+							if (ranges::find(bgps, TriplePattern{subj, pred, obj}) == bgps.end())
 								bgps.push_back(TriplePattern{subj, pred, obj});
 						}
 					}
@@ -173,10 +185,8 @@ namespace tentris::store::sparql {
 							query_variables.push_back(variable);
 
 
-
-				using Label = Subscript::Label;
-				// generate subscript
-				robin_hood::unordered_map<Variable, Label> var_to_label{};
+//				using Label = Subscript::Label;
+//				robin_hood::unordered_map<Variable, Label> var_to_label{};
 				Label next_label = 'a';
 				for (const auto &var : variables) {
 					var_to_label[var] = next_label++;
@@ -190,7 +200,7 @@ namespace tentris::store::sparql {
 							op_labels.push_back(var_to_label[std::get<Variable>(res)]);
 							++count;
 						}
-					if (count) // removes operands without labels/variables
+					if (count)// removes operands without labels/variables
 						ops_labels.push_back(op_labels);
 				}
 
@@ -200,7 +210,67 @@ namespace tentris::store::sparql {
 				}
 
 				subscript = std::make_shared<Subscript>(ops_labels, result_labels);
+
 			}
+		}
+
+		// New helper method to increase variable count
+		void increaseVariableCount(const VarOrTerm& varOrTerm) {
+			if (std::holds_alternative<Variable>(varOrTerm)) {
+				const Variable& var = std::get<Variable>(varOrTerm);
+				variable_count[var]++;
+			}
+		}
+
+		// Method to get the list of join variables
+		std::vector<Variable> getJoinVariables() {
+			std::vector<Label> joinLabels;
+			//std::vector<Variable> joinVariables; written as a class variable to access it in another func
+			auto labelSet = subscript->getOperandsLabelSet();
+
+			for(const auto& label : labelSet){
+				auto labelPositions = subscript->getLabelPossInOperands(label);
+
+				int count = 0;
+				for (const auto& positions : labelPositions){
+					if (!positions.empty()){
+						count++;
+					}
+				}
+				if(count > 1){
+					joinLabels.emplace_back(label);
+				}
+			}
+
+			for (const auto& label: joinLabels)
+			{
+				for(const auto& [var, lab] : var_to_label){
+					if(lab == label){
+						joinVariables.emplace_back(var);
+					}
+				}
+			}
+
+			return joinVariables;
+		}
+
+		std::vector<Dice::sparql::Variable> get_non_join_vars()
+		{
+			auto query_vars = getVariables();
+			auto join_vars = getJoinVariables();
+			// Convert join_vars to an unordered_set for faster lookup (requires hash function)
+			std::unordered_set<Dice::sparql::Variable> join_set(join_vars.begin(), join_vars.end());
+
+			// Store the non-join variables
+			std::vector<Dice::sparql::Variable> non_join_vars;
+
+			// Use copy_if to filter query_vars and find non-join variables
+			std::copy_if(query_vars.begin(), query_vars.end(), std::back_inserter(non_join_vars),
+						 [&join_set](const Dice::sparql::Variable& var) {
+							 return join_set.find(var) == join_set.end();
+						 });
+
+			return non_join_vars;
 		}
 
 		[[nodiscard]] SelectModifier getSelectModifier() const {
@@ -230,6 +300,7 @@ namespace tentris::store::sparql {
 		[[nodiscard]] const std::vector<TriplePattern> &getBgps() const {
 			return bgps;
 		}
+
 
 	private:
 
