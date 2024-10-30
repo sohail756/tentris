@@ -7,6 +7,9 @@
 #include <sstream>  // for std::ostringstream
 
 #include <sqlite3.h>
+#include <vector>
+#include <string>
+#include <memory>
 
 #include "tentris/store/RDF/TermStore.hpp"
 #include "tentris/store/AtomicTripleStore.hpp"
@@ -36,6 +39,7 @@ namespace tentris::store::cache {
 //		std::string filepath = "/home/sohail/CLionProjects/tentris/query-features.csv";
 		std::string filepath = "../query-features.csv";
 		std::vector<std::string> row;
+		std::vector<int> tpSizes;
 
 		sqlite3* db;
 		char* errorMessage = 0;
@@ -85,7 +89,7 @@ namespace tentris::store::cache {
 				std::cout << "Opened database successfully!" << std::endl;
 			}
 			// Create a table if it doesn't exist
-			std::string createTableSQL = "CREATE TABLE IF NOT EXISTS QueryData ("
+			std::string createTableSQL = "CREATE TABLE IF NOT EXISTS TestQueryData ("
 										 "QueryString TEXT, "
 										 "QueryVars TEXT, "
 										 "ProjVars TEXT, "
@@ -110,7 +114,7 @@ namespace tentris::store::cache {
 			//ParsedSPARQL parsed_sparql{sparql_string};
 			parsed_sparql = std::make_shared<ParsedSPARQL>(sparql_string);
 			subscript = parsed_sparql->getSubscript();
-			select_modifier = parsed_sparql->getSelectModifier();
+			//select_modifier = parsed_sparql->getSelectModifier();
 			logDebug(fmt::format("Parsed subscript: {} [distinct = {}]",
 								 subscript,
 								 select_modifier == SelectModifier::DISTINCT));
@@ -118,7 +122,6 @@ namespace tentris::store::cache {
 
 			auto &triple_store = AtomicTripleStore::getInstance();
 
-			std::vector<int> tpSizes;
 			logDebug(fmt::format("Slicing TPs"));
 			for ([[maybe_unused]] const auto &[op_pos, tp]: iter::enumerate(parsed_sparql->getBgps())) {
 				logDebug(fmt::format("Slice key {}: ⟨{}⟩", op_pos, fmt::join(tp, ", ")));
@@ -181,13 +184,6 @@ namespace tentris::store::cache {
 			return sparql_string;
 		}
 
-		const std::shared_ptr<Subscript> &getSubscript() const {
-			return subscript;
-		}
-
-		SelectModifier getSelectModifier() const {
-			return select_modifier;
-		}
 
 		const std::vector<Variable> &getQueryVariables() const {
 			return query_variables;
@@ -196,6 +192,63 @@ namespace tentris::store::cache {
 		friend struct ::fmt::formatter<QueryExecutionPackage>;
 
 		//code by sohail started here
+
+		// Getters for the features to expose to Python DRL gym env.
+		std::vector<std::string> getQueryVars() const {
+			std::vector<std::string> vars;
+			for (const auto& var : parsed_sparql->getVariables()) {
+				vars.push_back(var.getName());
+			}
+			return vars;
+		}
+		std::vector<std::string> getProjVars() const {
+			std::vector<std::string> projVars;
+			for (const auto& var : parsed_sparql->getQueryVariables()) {
+				projVars.push_back(var.getName());
+			}
+			return projVars;
+		}
+		std::vector<std::string> getJoinVars() const {
+			std::vector<std::string> joinVars;
+			for (const auto& var : parsed_sparql->getJoinVariables()) {
+				joinVars.push_back(var.getName());
+			}
+			return joinVars;
+		}
+		std::vector<std::string> getNonJoinVars() const {
+			std::vector<std::string> nonJoinVars;
+			for (const auto& var : parsed_sparql->get_non_join_vars()) {
+				nonJoinVars.push_back(var.getName());
+			}
+			return nonJoinVars;
+		}
+		std::vector<double> getMinCardinalityInTP() const {
+			std::vector<double> minimum_cardinalities_labels;
+			for (const auto& [var, lab] : parsed_sparql->var_to_label) {
+				std::vector<double> all_card_of_a_label = cardinalityestimation->calcCardPublicInterface(operands, lab, subscript);
+				if (!all_card_of_a_label.empty()) {
+					auto min_cards = std::min_element(all_card_of_a_label.begin(), all_card_of_a_label.end());
+					minimum_cardinalities_labels.push_back(*min_cards);
+				} else {
+					// If all_card_of_a_label is unexpectedly empty, save a value of 0
+					minimum_cardinalities_labels.push_back(0.0);
+				}
+			}
+			return minimum_cardinalities_labels;
+		}
+		int getSelectModifier() const {
+			return static_cast<int>(select_modifier);
+		}
+		int getNoTPs() const {
+			return parsed_sparql->getBgps().size();
+		}
+		std::vector<int> getTPSizes() const {
+			return tpSizes;
+		}
+		std::string getVartoLabelMap() {
+			return this->convertMapToString(parsed_sparql->var_to_label);  // Placeholder
+		}
+
 		std::string convertMapToString(const robin_hood::unordered_map<Variable, Label>& var_to_label) {
 			std::ostringstream oss;
 			oss << "{";
@@ -215,9 +268,11 @@ namespace tentris::store::cache {
 
 		void writeToSQLite(const std::shared_ptr<ParsedSPARQL>& parsed_sparql, sqlite3* db, std::vector<int> tpSizes) {
 			// Step 1: Check if the record already exists based on QueryString
-			std::string checkSQL = "SELECT rowid FROM QueryData WHERE QueryString = ?;";
+			int rc;
+			std::string checkSQL = "SELECT rowid FROM TestQueryData WHERE QueryString = ?;";
+
 			sqlite3_stmt* checkStmt;
-			int rc = sqlite3_prepare_v2(db, checkSQL.c_str(), -1, &checkStmt, nullptr);
+			rc = sqlite3_prepare_v2(db, checkSQL.c_str(), -1, &checkStmt, nullptr);
 
 			if (rc != SQLITE_OK) {
 				std::cerr << "Failed to prepare check statement: " << sqlite3_errmsg(db) << std::endl;
@@ -242,8 +297,9 @@ namespace tentris::store::cache {
 			// Finalize the check statement since record doesn't exist
 			sqlite3_finalize(checkStmt);
 
+			//
 			// Step 3: Insert the record if it doesn't exist
-			std::string insertSQL = "INSERT INTO QueryData (QueryString, QueryVars, ProjVars, JoinVars, NonJoinVars, "
+			std::string insertSQL = "INSERT INTO TestQueryData (QueryString, QueryVars, ProjVars, JoinVars, NonJoinVars, "
 									"MinCardinalityInTP, SelectModifier, NoTPs, TPSizes, VartoLabelMap, QueryPlan, "
 									"TentrisQueryRuntime, DRLQueryRuntime) "
 									"VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
@@ -277,7 +333,7 @@ namespace tentris::store::cache {
 			if (!projVarsStr.empty()) {
 				projVarsStr.pop_back(); // Remove trailing space
 			}
-			sqlite3_bind_text(stmt, 3, projVarsStr.c_str(), -1, SQLITE_TRANSIENT);
+				sqlite3_bind_text(stmt, 3, projVarsStr.c_str(), -1, SQLITE_TRANSIENT);
 
 			std::string joinVarStr;	//adding join variables to the database
 			auto joinVars = parsed_sparql->getJoinVariables();

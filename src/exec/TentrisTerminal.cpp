@@ -140,7 +140,7 @@ void insertTentrisQueryRuntime(sqlite3* db, int queryID, long long tentrisExecut
 	char* errorMessage = 0;
 
 	// SQL update query for TentrisQueryRuntime
-	std::string updateSQL = "UPDATE QueryData SET TentrisQueryRuntime = ? WHERE rowid = ?;";
+	std::string updateSQL = "UPDATE TestQueryData SET TentrisQueryRuntime = ? WHERE rowid = ?;";
 
 	sqlite3_stmt* stmt;
 	int rc = sqlite3_prepare_v2(db, updateSQL.c_str(), -1, &stmt, nullptr);
@@ -167,7 +167,7 @@ void insertDRLQueryRuntime(sqlite3* db, int queryID, long long drlExecutionTime)
 	char* errorMessage = 0;
 
 	// SQL update query for DRLQueryRuntime
-	std::string updateSQL = "UPDATE QueryData SET DRLQueryRuntime = ? WHERE rowid = ?;";
+	std::string updateSQL = "UPDATE TestQueryData SET DRLQueryRuntime = ? WHERE rowid = ?;";
 
 	sqlite3_stmt* stmt;
 	int rc = sqlite3_prepare_v2(db, updateSQL.c_str(), -1, &stmt, nullptr);
@@ -191,7 +191,7 @@ void insertDRLQueryRuntime(sqlite3* db, int queryID, long long drlExecutionTime)
 }
 
 long long fetchQueryRuntimeFromSQLite(sqlite3* db, int queryID) {
-	std::string selectSQL = "SELECT TentrisQueryRuntime FROM QueryData WHERE rowid = ?;";
+	std::string selectSQL = "SELECT TentrisQueryRuntime FROM TestQueryData WHERE rowid = ?;";
 	sqlite3_stmt* stmt;
 	long long queryRuntime = 0;
 
@@ -221,7 +221,7 @@ long long fetchQueryRuntimeFromSQLite(sqlite3* db, int queryID) {
 // Function to read SPARQL queries from the SQLite database
 std::vector<std::pair<int, std::string>> readSparqlQueriesFromDatabase(sqlite3* db) {
 	std::vector<std::pair<int, std::string>> queries;
-	std::string selectSQL = "SELECT rowid, QueryString FROM QueryData;"; // Fetch rowid and QueryString from the table
+	std::string selectSQL = "SELECT rowid, QueryString FROM TestQueryData;"; // Fetch rowid and QueryString from the table
 
 	sqlite3_stmt* stmt;
 	int rc = sqlite3_prepare_v2(db, selectSQL.c_str(), -1, &stmt, nullptr);
@@ -272,20 +272,20 @@ std::vector<std::string> readSparqlQueriesFromCsv(const std::string &csv_filepat
 }
 
 
-//void commandlineInterface(QueryExecutionPackage_cache& querypackage_cache, sqlite3* db) {	//for loading queries from database
-void commandlineInterface(QueryExecutionPackage_cache& querypackage_cache, sqlite3* db, std::string file_path) {	//for loading queries from csv
+void commandlineInterface(QueryExecutionPackage_cache& querypackage_cache, sqlite3* db, std::string file_path) {
 	std::shared_ptr<QueryExecutionPackage> query_package;
 
+
 	// Read SPARQL queries from the database
-	std::vector<std::pair<int, std::string>> sparql_queries = readSparqlQueriesFromDatabase(db);
+//	std::vector<std::pair<int, std::string>> sparql_queries = readSparqlQueriesFromDatabase(db);
 
 	//Read SPARQL queries from csv file
-//	std::vector<std::string> sparql_queries = readSparqlQueriesFromCsv(file_path);
-	for (const auto& [queryID, sparql_str] : sparql_queries) {	//uncomment when loading queries from database
-//	for (const auto& sparql_str : sparql_queries) {	//uncomment when loading queries from csv file
+	std::vector<std::string> sparql_queries = readSparqlQueriesFromCsv(file_path);
+//	for (const auto& [queryID, sparql_str] : sparql_queries) {	//uncomment when loading queries from database
+	for (const auto& sparql_str : sparql_queries) {	//uncomment when loading queries from csv file
 		try {
-			logsink() << fmt::format("Processing query (ID: {}): {}\n", queryID, sparql_str);	//uncomment when loading queries from database
-//			logsink() << fmt::format("Processing query: {}\n",  sparql_str); //uncomment when loading queries from csv file
+//			logsink() << fmt::format("Processing query (ID: {}): {}\n", queryID, sparql_str);	//uncomment when loading queries from database
+			logsink() << fmt::format("Processing query: {}\n",  sparql_str); //uncomment when loading queries from csv file
 
 			query_start = steady_clock::now();
 			number_of_bindings = 0;
@@ -295,21 +295,21 @@ void commandlineInterface(QueryExecutionPackage_cache& querypackage_cache, sqlit
 				parse_start = steady_clock::now();
 				query_package = querypackage_cache[sparql_str];
 				// Fetch QueryRuntime from the database
-				long long queryRuntime = fetchQueryRuntimeFromSQLite(db, queryID); //uncomment when loading queries from database
+//				long long queryRuntime = fetchQueryRuntimeFromSQLite(db, queryID); //uncomment when loading queries from database
 				//uncomment the below if else part if loading queries from database
 //				// If no runtime is available, use the default timeout (if required)
-				if (queryRuntime == 0) {
-					timeout = steady_clock::now() + cfg.timeout;
-				}
-				else {
-					// Set timeout to 2 times the QueryRuntime
-					timeout = steady_clock::now() + std::chrono::nanoseconds(static_cast<long long>(queryRuntime * 3));
-					// Calculate the time duration between now and the timeout value
-					auto duration_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(timeout - steady_clock::now()).count();
-					std::cout << "The timeout for this query is " << duration_ns << " nanoseconds from now." << std::endl;
-
-				}
-//				timeout = steady_clock::now() + cfg.timeout; //tentris default
+//				if (queryRuntime == 0) {
+//					timeout = steady_clock::now() + cfg.timeout;
+//				}
+//				else {
+//					// Set timeout to 2 times the QueryRuntime
+//					timeout = steady_clock::now() + std::chrono::nanoseconds(static_cast<long long>(queryRuntime * 3));
+//					// Calculate the time duration between now and the timeout value
+//					auto duration_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(timeout - steady_clock::now()).count();
+//					std::cout << "The timeout for this query is " << duration_ns << " nanoseconds from now." << std::endl;
+//
+//				}
+				timeout = steady_clock::now() + cfg.timeout; //tentris default
 
 				parse_end = steady_clock::now();
 				execute_start = steady_clock::now();
@@ -346,8 +346,8 @@ void commandlineInterface(QueryExecutionPackage_cache& querypackage_cache, sqlit
 			auto serialization_time = total_time - execution_time - parsing_time;
 
 			// Insert execution time into SQLite
-//			insertTentrisQueryRuntime(db, query_package->queryID, execution_time.count());
-			insertDRLQueryRuntime(db, query_package->queryID, execution_time.count());
+			insertTentrisQueryRuntime(db, query_package->queryID, execution_time.count());
+//			insertDRLQueryRuntime(db, query_package->queryID, execution_time.count());
 
 			switch (::error) {
 				case Errors::OK:
@@ -431,7 +431,7 @@ int main(int argc, char *argv[]) {
 	}
 
 	//path to csv file containing queries
-	std::string file_path = "/home/sohail/CLionProjects/tentris/watdiv_queries.csv";
+	std::string file_path = "/home/sohail/CLionProjects/tentris/onequery.csv";
 
 	// Path to your SQLite database
 	std::string db_path = "/home/sohail/CLionProjects/tentris/query_data.db";

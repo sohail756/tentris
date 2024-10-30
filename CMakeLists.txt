@@ -55,7 +55,7 @@ set(CXXOPTS_ENABLE_INSTALL OFF CACHE BOOL "" FORCE)
 set(CXXOPTS_ENABLE_WARNINGS OFF CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(cxxopts)
 
-add_library(csv-parser INTERFACE src/lib/tentris/util/CSVWriter.hpp)
+add_library(csv-parser INTERFACE src/lib/tentris/util/CSVWriter.hpp src/lib/tentris/store/tentris_bindings.cpp src/lib/tentris/store/tentris_bindings.h)
 target_include_directories(csv-parser INTERFACE
         thirdparty/csv-parser
         )
@@ -73,6 +73,8 @@ find_package(sparql-parser-base REQUIRED)
 find_package(rdf-parser REQUIRED)
 # Find SQLite3 library
 find_package(SQLite3 REQUIRED)
+set(pybind11_DIR "/home/sohail/anaconda3/envs/myenv/lib/python3.9/site-packages/pybind11/share/cmake/pybind11")
+find_package(pybind11 REQUIRED)
 if (TENTRIS_STATIC)
     SET(Boost_USE_STATIC_LIBS ON)
 endif ()
@@ -148,14 +150,15 @@ set_target_properties(tentris_server PROPERTIES LINK_FLAGS_RELEASE -s)
 
 add_dependencies(tentris_server tentris)
 
-add_executable(tentris_terminal src/exec/TentrisTerminal.cpp src/exec/config/ServerConfig.hpp src/exec/config/TerminalConfig.hpp)
+add_executable(tentris_terminal src/exec/TentrisTerminal.cpp src/exec/config/ServerConfig.hpp src/exec/config/TerminalConfig.hpp src/lib/tentris/store/tentris_bindings.cpp src/lib/tentris/store/tentris_bindings.h)
 target_link_libraries(tentris_terminal
         ${TENTRIS_STATIC_DEF}
         ${TENTRIS_PTHREAD_DEF}
         tentris
         SQLite::SQLite3
+        /home/sohail/anaconda3/envs/myenv/lib/libpython3.9.so
+        pybind11::module
         )
-
 set_target_properties(tentris_terminal PROPERTIES LINK_FLAGS_RELEASE -s)
 
 add_dependencies(tentris_terminal tentris)
