@@ -1,0 +1,296 @@
+queries
+"PREFIX  xsd:  <http://www.w3.org/2001/XMLSchema#>
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX  dbprop: <http://dbpedia.org/property/>
+
+SELECT  *
+WHERE
+  { { { <http://www.yso.fi/kulttuuriSampo/paikat#leiden>
+                  rdfs:label    ?cities2 ;
+                  dbprop:latd   ?latd ;
+                  dbprop:latm   ?latm ;
+                  dbprop:lats   ?lats ;
+                  dbprop:longd  ?longd ;
+                  dbprop:longm  ?longm ;
+                  dbprop:longs  ?longs
+        BIND(( ( ( ?latd / 1.0 ) + ( ?latm / 60.0 ) ) + ( ?lats / 3600.0 ) ) AS ?latitude)
+      }
+      BIND(( ( ( ?longd / 1.0 ) + ( ?longm / 60.0 ) ) + ( ?longs / 3600.0 ) ) AS ?longitude)
+    }
+    VALUES ?cities2 { ""Kuopio""@en ""Vantaa""@en }
+  }
+"
+"PREFIX  dbpo: <http://dbpedia.org/ontology/>
+PREFIX  rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX  dbpr: <http://dbpedia.org/resource/>
+PREFIX  foaf: <http://xmlns.com/foaf/0.1/>
+
+SELECT  *
+WHERE
+  { <http://dbpedia.org/resource/Small_Faces_%28film%29>
+              rdf:type              dbpo:Film ;
+              foaf:isPrimaryTopicOf  ?wikiPage ;
+              dbpo:runtime          ?runtime ;
+              dbpo:releaseDate      ?release
+  }
+"
+"PREFIX  dbpo: <http://dbpedia.org/ontology/>
+PREFIX  rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX  dbpr: <http://dbpedia.org/resource/>
+
+SELECT DISTINCT  ?x2 ?x0 ?r0 ?r34 ?r48
+WHERE
+  { ?x2       rdf:type  dbpo:Film .
+    dbpr:Casablanca
+              ?r0       ?x2 .
+    ?x0       rdf:type  dbpo:Person ;
+              ?r34      <http://dbpedia.org/resource/Casablanca_(film)> .
+    dbpr:Author  ?r48   dbpo:Type
+  }
+"
+"PREFIX  grs:  <http://www.georss.org/georss/>
+PREFIX  dbpo: <http://dbpedia.org/ontology/>
+PREFIX  rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX  dbpr: <http://dbpedia.org/resource/>
+
+SELECT  *
+WHERE
+  { dbpr:Paraguay
+              rdf:type      dbpo:Place ;
+              dbpo:capital  ?capital .
+    ?capital  rdf:type      dbpo:PopulatedPlace ;
+              grs:point     ?coord
+  }
+"
+"PREFIX  :     <http://dbpedia.org/resource/>
+PREFIX  owl:  <http://www.w3.org/2002/07/owl#>
+PREFIX  rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+
+SELECT DISTINCT  ?p
+WHERE
+  { :Johnny_Cash  ?p    ?CS .
+    :Carl_Perkins
+              ?p        ?CS .
+    ?p        rdf:type  owl:ObjectProperty .
+    ?CS       rdf:type  owl:Thing
+  }
+"
+"PREFIX  :     <http://dbpedia.org/resource/>
+PREFIX  owl:  <http://www.w3.org/2002/07/owl#>
+PREFIX  rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+
+SELECT DISTINCT  ?p
+WHERE
+  { ?CS  ?p        :Johnny_Cash ;
+         ?q        :Eddie_Bond .
+    ?p   rdf:type  owl:ObjectProperty .
+    ?q   rdf:type  owl:ObjectProperty .
+    ?CS  rdf:type  owl:Thing
+  }
+"
+"PREFIX  dbpo: <http://dbpedia.org/ontology/>
+PREFIX  rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX  dbpr: <http://dbpedia.org/resource/>
+PREFIX  dbprop: <http://dbpedia.org/property/>
+
+SELECT  *
+WHERE
+  { <http://dbpedia.org/resource/Minority_Report_%28film%29>
+              rdf:type         dbpo:Work ;
+              dbprop:released  ?releaseDate ;
+              dbprop:country   ?country ;
+              dbpo:abstract    ?about
+  }
+"
+"PREFIX  dbpo: <http://dbpedia.org/ontology/>
+PREFIX  rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX  dbpr: <http://dbpedia.org/resource/>
+PREFIX  foaf: <http://xmlns.com/foaf/0.1/>
+
+SELECT  *
+WHERE
+  { <http://dbpedia.org/resource/Hot_Shots%21_Part_Deux>
+              rdf:type              dbpo:Film ;
+              foaf:isPrimaryTopicOf  ?wikiPage ;
+              dbpo:runtime          ?runtime ;
+              dbpo:releaseDate      ?release
+  }
+"
+"PREFIX  dbpo: <http://dbpedia.org/ontology/>
+PREFIX  rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX  dbpr: <http://dbpedia.org/resource/>
+PREFIX  dbprop: <http://dbpedia.org/property/>
+
+SELECT  *
+WHERE
+  { <http://dbpedia.org/resource/Heat_%28film%29>
+              rdf:type         dbpo:Work ;
+              dbprop:released  ?releaseDate ;
+              dbprop:country   ?country ;
+              dbpo:abstract    ?about
+  }
+"
+"PREFIX  dbpo: <http://dbpedia.org/ontology/>
+PREFIX  gsp:  <http://www.opengis.net/ont/geosparql#>
+PREFIX  dbpr: <http://dbpedia.org/resource/>
+
+SELECT  ?lat ?long ?country0 ?lat0 ?long0 ?country1 ?lat1 ?long1 ?country2 ?lat2 ?long2 ?country3 ?lat3 ?long3 ?country4 ?lat4 ?long4 ?country5 ?lat5 ?long5 ?country6 ?lat6 ?long6
+WHERE
+  { dbpr:Malawi  gsp:lat    ?lat ;
+              gsp:long      ?long .
+    dbpr:Geneva  dbpo:country  ?country2 ;
+              gsp:lat       ?lat2 ;
+              gsp:long      ?long2 .
+    dbpr:Lilongwe
+              dbpo:country  ?country3 ;
+              gsp:lat       ?lat3 ;
+              gsp:long      ?long3 .
+    dbpr:Chikwawa
+              dbpo:country  ?country4 ;
+              gsp:lat       ?lat4 ;
+              gsp:long      ?long4 .
+    dbpr:Mwanza  dbpo:country  ?country5 ;
+              gsp:lat       ?lat5 ;
+              gsp:long      ?long5
+  }
+"
+"PREFIX  dbpo: <http://dbpedia.org/ontology/>
+PREFIX  rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX  dbpr: <http://dbpedia.org/resource/>
+PREFIX  foaf: <http://xmlns.com/foaf/0.1/>
+
+SELECT  *
+WHERE
+  { <http://dbpedia.org/resource/Ararat_%28film%29>
+              rdf:type              dbpo:Film ;
+              foaf:isPrimaryTopicOf  ?wikiPage ;
+              dbpo:runtime          ?runtime ;
+              dbpo:releaseDate      ?release
+  }
+"
+"PREFIX  dbpo: <http://dbpedia.org/ontology/>
+PREFIX  rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX  dbpr: <http://dbpedia.org/resource/>
+PREFIX  foaf: <http://xmlns.com/foaf/0.1/>
+
+SELECT  *
+WHERE
+  { <http://dbpedia.org/resource/The_Last_Command_%28film%29>
+              rdf:type              dbpo:Film ;
+              foaf:isPrimaryTopicOf  ?wikiPage ;
+              dbpo:runtime          ?runtime ;
+              dbpo:releaseDate      ?release
+  }
+"
+"PREFIX  dbpo: <http://dbpedia.org/ontology/>
+PREFIX  rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX  dbpr: <http://dbpedia.org/resource/>
+PREFIX  foaf: <http://xmlns.com/foaf/0.1/>
+
+SELECT  *
+WHERE
+  { <http://dbpedia.org/resource/Grumpy_Old_Men_%28film%29>
+              rdf:type              dbpo:Film ;
+              foaf:isPrimaryTopicOf  ?wikiPage ;
+              dbpo:runtime          ?runtime ;
+              dbpo:releaseDate      ?release
+  }
+"
+"PREFIX  dbpr: <http://dbpedia.org/resource/>
+PREFIX  dbprop: <http://dbpedia.org/property/>
+
+SELECT DISTINCT  *
+WHERE
+  { ?region  dbprop:type           dbpr:Departments_of_France ;
+             dbprop:subdivisionName  dbpr:France ;
+             dbprop:name           ?nom ;
+             dbprop:longd          ?longitude ;
+             dbprop:latd           ?latitude
+  }
+"
+"PREFIX  dbpo: <http://dbpedia.org/ontology/>
+PREFIX  rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX  dbpr: <http://dbpedia.org/resource/>
+PREFIX  dbprop: <http://dbpedia.org/property/>
+
+SELECT  *
+WHERE
+  { <http://dbpedia.org/resource/Kung_Pow%21_Enter_the_Fist>
+              rdf:type         dbpo:Work ;
+              dbprop:released  ?releaseDate ;
+              dbprop:country   ?country ;
+              dbpo:abstract    ?about
+  }
+"
+"PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  xmls: <http://www.w3.org/2001/XMLSchema#>
+PREFIX  rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX  dbprop: <http://dbpedia.org/property/>
+
+SELECT DISTINCT  ?cityname ?latd ?latm ?lats ?convertedLat ?longd ?longm ?longs
+WHERE
+  { VALUES ?cityname { ""Kuopio""@en ""Vantaa""@en }
+    ?cityRes  rdfs:label    ?cityname ;
+              dbprop:latd   ?latd ;
+              dbprop:latm   ?latm ;
+              dbprop:lats   ?lats ;
+              dbprop:longd  ?longd ;
+              dbprop:longm  ?longm ;
+              dbprop:longs  ?longs
+    BIND(( ( <www.w3.org/2001/XMLSchema#float>(?latd) + <www.w3.org/2001/XMLSchema#float>(( ?latm / 60.0 )) ) + <www.w3.org/2001/XMLSchema#float>(( ?latm / 3600.0 )) ) AS ?convertedLat)
+  }
+"
+"PREFIX  dbpo: <http://dbpedia.org/ontology/>
+PREFIX  rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX  dbpr: <http://dbpedia.org/resource/>
+PREFIX  foaf: <http://xmlns.com/foaf/0.1/>
+
+SELECT  *
+WHERE
+  { dbpr:P.S._Your_Cat_Is_Dead
+              rdf:type              dbpo:Film ;
+              foaf:isPrimaryTopicOf  ?wikiPage ;
+              dbpo:runtime          ?runtime ;
+              dbpo:releaseDate      ?release
+  }
+"
+"PREFIX  dbpo: <http://dbpedia.org/ontology/>
+PREFIX  rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX  dbpr: <http://dbpedia.org/resource/>
+PREFIX  dbprop: <http://dbpedia.org/property/>
+
+SELECT DISTINCT  ?c ?d
+WHERE
+  { ?c  rdf:type            dbpo:SoccerPlayer ;
+        dbpo:birthPlace     dbpr:London ;
+        dbprop:dateOfBirth  ?d ;
+        dbpo:position       dbpr:Midfielder ;
+        dbprop:clubs        <http://dbpedia.org/resource/Manchester_United_F.C.>
+  }
+"
+"PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  owl:  <http://www.w3.org/2002/07/owl#>
+PREFIX  rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+
+SELECT DISTINCT  ?domain ?r ?ra
+FROM <http://dbpedia.org/ontology>
+WHERE
+  { ?r       rdf:type     owl:ObjectProperty ;
+             rdfs:domain  ?d ;
+             rdfs:range   ?ra .
+    ?domain  rdfs:label   ?d
+  }
+"
+"PREFIX  :     <http://dbpedia.org/resource/>
+PREFIX  owl:  <http://www.w3.org/2002/07/owl#>
+PREFIX  rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+
+SELECT DISTINCT  ?p
+WHERE
+  { ?CS  ?p        :Johnny_Cash ;
+         ?p        :June_Carter_Cash .
+    ?p   rdf:type  owl:ObjectProperty .
+    ?CS  rdf:type  owl:Thing
+  }
+"

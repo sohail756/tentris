@@ -1,0 +1,2 @@
+Text
+PREFIX ex: <http://learningsparql.com/ns/expenses#> SELECT ?date ?breakfastAmount ?lunchAmount ?dinnerAmount WHERE { ?breakfast ex:description "breakfast" ; ex:date ?date ; ex:amount ?breakfastAmount . ?lunch ex:description "lunch" ; ex:date ?date ; ex:amount ?lunchAmount . ?dinner ex:description "dinner" ; ex:date ?date ; ex:amount ?dinnerAmount . }

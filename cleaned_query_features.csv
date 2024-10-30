@@ -1,0 +1,174 @@
+QueryVars,var-to-lab-mapping,ProjVars,JoinVars,LonelyNonResultLabels,lab-cards-in-TP,No.TPs,TP-sizes,QueryRuntime
+a b,value:a property:b,b a,,,a:10.00; b:7.00;,1,12,50761
+a b c,prop:a type:b val:c,b a c,,,a:5.00; b:1.00; c:9.00;,2,1 11,163008
+a b c,prop:a type:b val:c,b a c,,,a:6.00; b:1.00; c:34.00;,2,1 40,137459
+a b,value:a property:b,b a,,,a:2.00; b:2.00;,1,2,33182
+a b c,prop:a type:b val:c,b a c,,,a:5.00; b:1.00; c:7.00;,2,1 8,131343
+a b c,prop:a type:b val:c,b a c,,,a:5.00; b:1.00; c:4.00;,2,1 5,127749
+a b,value:a property:b,b a,,,a:1.00; b:1.00;,1,1,26063
+a b c,prop:a type:b val:c,b a c,,,a:5.00; b:1.00; c:4.00;,2,1 5,142538
+a b,value:a property:b,b a,,,a:8.00; b:9.00;,1,9,23258
+a b,value:a property:b,b a,,,a:6.00; b:6.00;,1,7,21386
+a b,value:a property:b,b a,,,a:3.00; b:4.00;,1,4,22090
+a b c,prop:a type:b val:c,b a c,,,a:5.00; b:1.00; c:14.00;,2,1 15,109036
+a b c,prop:a type:b val:c,b a c,,,a:5.00; b:1.00; c:20.00;,2,1 24,109682
+a b c,prop:a type:b val:c,b a c,,,a:7.00; b:1.00; c:6.00;,2,1 7,112051
+a b,value:a property:b,b a,,,a:623.00; b:4.00;,1,623,22714
+a b,value:a property:b,b a,,,a:12.00; b:12.00;,1,18,47299
+a b,value:a property:b,b a,,,a:10.00; b:12.00;,1,14,26853
+a b c,prop:a type:b val:c,b a c,,,a:6.00; b:1.00; c:21.00;,2,1 24,128745
+a b c,prop:a type:b val:c,b a c,,,a:5.00; b:1.00; c:4.00;,2,1 5,98856
+a b c,prop:a type:b val:c,b a c,,,a:5.00; b:1.00; c:4.00;,2,1 5,100918
+a b c,prop:a type:b val:c,b a c,,,a:6.00; b:1.00; c:17.00;,2,1 21,123913
+a b c,prop:a type:b val:c,b a c,,,a:9.00; b:1.00; c:24.00;,2,1 26,125845
+a b c,prop:a type:b val:c,b a c,,,a:6.00; b:1.00; c:29.00;,2,1 31,116060
+a b,value:a property:b,b a,,,a:4.00; b:5.00;,1,5,24592
+a b c,prop:a type:b val:c,b a c,,,a:5.00; b:1.00; c:8.00;,2,1 9,108298
+a b c,prop:a type:b val:c,b a c,,,a:5.00; b:1.00; c:12.00;,2,1 13,98464
+a b,value:a property:b,b a,,,a:1.00; b:1.00;,1,1,24648
+a b,value:a property:b,b a,,,a:8.00; b:9.00;,1,9,26397
+a b,value:a property:b,b a,,,a:17.00; b:16.00;,1,28,23738
+a b c,prop:a type:b val:c,b a c,,,a:6.00; b:1.00; c:8.00;,2,1 11,113159
+a b c,prop:a type:b val:c,b a c,,,a:5.00; b:1.00; c:10.00;,2,1 11,111092
+a b c,prop:a type:b val:c,b a c,,,a:5.00; b:1.00; c:16.00;,2,1 18,163936
+a b,value:a property:b,b a,,,a:1.00; b:1.00;,1,1,29695
+a b,value:a property:b,b a,,,a:4.00; b:5.00;,1,5,25141
+a b,value:a property:b,b a,,,a:13.00; b:11.00;,1,19,27445
+a b c,prop:a type:b val:c,b a c,,,a:5.00; b:1.00; c:13.00;,2,1 15,104138
+a b,value:a property:b,b a,,,a:12.00; b:10.00;,1,17,29257
+a b,s:a o:b,a b,a,,a:1812.00 11114.00; b:2120.00;,2,2129 11114,185781
+a b,value:a property:b,b a,,,a:11.00; b:13.00;,1,17,24677
+a b c,prop:a type:b val:c,b a c,,,a:8.00; b:1.00; c:12.00;,2,1 13,107897
+a b c,prop:a type:b val:c,b a c,,,a:12.00; b:1.00; c:51.00;,2,1 59,104185
+a b,value:a property:b,b a,,,a:1.00; b:1.00;,1,1,24546
+a b,value:a property:b,b a,,,a:8.00; b:9.00;,1,9,20642
+a b,value:a property:b,b a,,,a:10.00; b:11.00;,1,11,20220
+a b,con:a rr:b,a b,,,a:134.00; b:4799.00;,1,5075,31866
+a b c,prop:a type:b val:c,b a c,,,a:5.00; b:1.00; c:4.00;,2,1 5,116306
+a b,value:a property:b,b a,,,a:4.00; b:5.00;,1,5,21991
+a b c,prop:a type:b val:c,b a c,,,a:5.00; b:1.00; c:8.00;,2,1 9,100590
+a b c,prop:a type:b val:c,b a c,,,a:5.00; b:1.00; c:4.00;,2,1 5,94032
+a b c,prop:a type:b val:c,b a c,,,a:5.00; b:1.00; c:9.00;,2,1 10,97356
+a b c,prop:a type:b val:c,b a c,,,a:5.00; b:1.00; c:4.00;,2,1 5,94765
+a b,value:a property:b,b a,,,a:1.00; b:1.00;,1,1,23233
+a b,p:a o:b,b a,,,a:5.00; b:94.00;,1,95,21030
+a b c,prop:a type:b val:c,b a c,,,a:5.00; b:1.00; c:8.00;,2,1 10,106907
+a b,value:a property:b,b a,,,a:2.00; b:2.00;,1,2,18837
+a b c,prop:a type:b val:c,b a c,,,a:9.00; b:1.00; c:99.00;,2,1 104,95380
+a b c,prop:a type:b val:c,b a c,,,a:6.00; b:1.00; c:99.00;,2,1 104,93521
+a b c,prop:a type:b val:c,b a c,,,a:9.00; b:1.00; c:40.00;,2,1 44,106287
+a b c d e,x:a title:b abstract:c year:d creator:e,b d,a,e c,a:5073.00 4592.00 3939.00 4701.00 3289.00; b:4573.00; c:3925.00; d:14.00; e:7031.00;,5,5073 4596 3972 4701 10812,488374
+a b,value:a property:b,b a,,,a:6.00; b:6.00;,1,6,45307
+a b c,prop:a type:b val:c,b a c,,,a:5.00; b:1.00; c:4.00;,2,1 5,139220
+a b c,prop:a type:b val:c,b a c,,,a:6.00; b:1.00; c:11.00;,2,1 12,127436
+a b c,prop:a type:b val:c,b a c,,,a:5.00; b:1.00; c:11.00;,2,1 12,128906
+a b,value:a property:b,b a,,,a:11.00; b:12.00;,1,14,31453
+a b c,prop:a type:b val:c,b a c,,,a:5.00; b:1.00; c:5.00;,2,1 6,186731
+a b c,prop:a type:b val:c,b a c,,,a:5.00; b:1.00; c:4.00;,2,1 5,116741
+a b,value:a property:b,b a,,,a:58.00; b:17.00;,1,60,33912
+a b c,prop:a type:b val:c,b a c,,,a:5.00; b:1.00; c:21.00;,2,1 22,189564
+a b,value:a property:b,b a,,,a:9.00; b:10.00;,1,10,55385
+a b,value:a property:b,b a,,,a:5.00; b:6.00;,1,6,33747
+a b,value:a property:b,b a,,,a:337.00; b:4.00;,1,337,29413
+a b,value:a property:b,b a,,,a:1.00; b:1.00;,1,1,34600
+a b,value:a property:b,b a,,,a:8.00; b:10.00;,1,11,43727
+a b c,prop:a type:b val:c,b a c,,,a:9.00; b:1.00; c:37.00;,2,1 38,116390
+a b c,prop:a type:b val:c,b a c,,,a:8.00; b:1.00; c:18.00;,2,1 20,112963
+a b,value:a property:b,b a,,,a:15.00; b:12.00;,1,16,30509
+a b,value:a property:b,b a,,,a:1.00; b:1.00;,1,1,63448
+a b c,prop:a type:b val:c,b a c,,,a:5.00; b:1.00; c:15.00;,2,1 16,118919
+a b,value:a property:b,b a,,,a:14.00; b:10.00;,1,15,35291
+a b c,prop:a type:b val:c,b a c,,,a:5.00; b:1.00; c:8.00;,2,1 9,232891
+a b,value:a property:b,b a,,,a:11.00; b:13.00;,1,14,30878
+a b c,prop:a type:b val:c,b a c,,,a:7.00; b:1.00; c:40.00;,2,1 51,132012
+a b c,prop:a type:b val:c,b a c,,,a:6.00; b:1.00; c:58.00;,2,1 62,137206
+a b c,prop:a type:b val:c,b a c,,,a:9.00; b:1.00; c:36.00;,2,1 39,115864
+a b,value:a property:b,b a,,,a:1.00; b:1.00;,1,1,29047
+a b,value:a property:b,b a,,,a:13.00; b:10.00;,1,16,28525
+a b c,prop:a type:b val:c,b a c,,,a:8.00; b:1.00; c:69.00;,2,1 75,190587
+a b,value:a property:b,b a,,,a:5.00; b:5.00;,1,6,33483
+a b,value:a property:b,b a,,,a:214.00; b:8.00;,1,214,32352
+a b c,prop:a type:b val:c,b a c,,,a:5.00; b:1.00; c:4.00;,2,1 5,120797
+a b c,prop:a type:b val:c,b a c,,,a:6.00; b:1.00; c:20.00;,2,1 22,113326
+a b,value:a property:b,b a,,,a:6.00; b:7.00;,1,7,33505
+a b c,prop:a type:b val:c,b a c,,,a:7.00; b:1.00; c:6.00;,2,1 7,116308
+a b c,prop:a type:b val:c,b a c,,,a:5.00; b:1.00; c:13.00;,2,1 14,135347
+a b c,prop:a type:b val:c,b a c,,,a:5.00; b:1.00; c:6.00;,2,1 7,146950
+a b c,prop:a type:b val:c,b a c,,,a:6.00; b:1.00; c:6.00;,2,1 7,114407
+a b,value:a property:b,b a,,,a:2.00; b:2.00;,1,2,32255
+a b c,prop:a type:b val:c,b a c,,,a:5.00; b:1.00; c:5.00;,2,1 6,242613
+a b c,prop:a type:b val:c,b a c,,,a:7.00; b:1.00; c:6.00;,2,1 7,111582
+a b c,prop:a type:b val:c,b a c,,,a:9.00; b:1.00; c:86.00;,2,1 88,137812
+a b,value:a property:b,b a,,,a:13.00; b:12.00;,1,20,39854
+a b,value:a property:b,b a,,,a:33.00; b:9.00;,1,35,66586
+a b,value:a property:b,b a,,,a:1.00; b:1.00;,1,1,33183
+a b c,prop:a type:b val:c,b a c,,,a:5.00; b:1.00; c:4.00;,2,1 5,157741
+a b c,prop:a type:b val:c,b a c,,,a:5.00; b:1.00; c:6.00;,2,1 8,139800
+a b,value:a property:b,b a,,,a:1.00; b:1.00;,1,1,28833
+a,o:a,a,,,a:1.00;,1,1,27843
+a b,value:a property:b,b a,,,a:3.00; b:4.00;,1,4,28075
+a b c,prop:a type:b val:c,b a c,,,a:5.00; b:1.00; c:4.00;,2,1 5,144659
+a b c,prop:a type:b val:c,b a c,,,a:5.00; b:1.00; c:5.00;,2,1 6,137075
+a b,value:a property:b,b a,,,a:1.00; b:1.00;,1,1,26837
+a b,value:a property:b,b a,,,a:17.00; b:14.00;,1,28,35700
+a b,value:a property:b,b a,,,a:1.00; b:1.00;,1,1,25585
+a b c,prop:a type:b val:c,b a c,,,a:5.00; b:1.00; c:4.00;,2,1 5,116083
+a b,value:a property:b,b a,,,a:166.00; b:2.00;,1,166,28641
+a b c,prop:a type:b val:c,b a c,,,a:8.00; b:1.00; c:51.00;,2,1 62,122598
+a b c,prop:a type:b val:c,b a c,,,a:9.00; b:1.00; c:25.00;,2,1 27,138524
+a b,value:a property:b,b a,,,a:72.00; b:18.00;,1,78,25409
+a b,value:a property:b,b a,,,a:5.00; b:6.00;,1,6,24720
+a b c,prop:a type:b val:c,b a c,,,a:5.00; b:1.00; c:6.00;,2,1 7,113295
+a b,value:a property:b,b a,,,a:3.00; b:4.00;,1,4,26670
+a b c,prop:a type:b val:c,b a c,,,a:5.00; b:1.00; c:9.00;,2,1 10,115676
+a b c,prop:a type:b val:c,b a c,,,a:6.00; b:1.00; c:33.00;,2,1 35,113747
+a b c,prop:a type:b val:c,b a c,,,a:9.00; b:1.00; c:94.00;,2,1 100,117343
+a b,value:a property:b,b a,,,a:40.00; b:7.00;,1,51,58601
+a b,value:a property:b,b a,,,a:9.00; b:11.00;,1,14,26047
+a,person:a,a,,,a:11114.00;,1,11114,22841
+a b,value:a property:b,b a,,,a:12.00; b:15.00;,1,17,29719
+a b,value:a property:b,b a,,,a:23.00; b:16.00;,1,34,22399
+a b,value:a property:b,b a,,,a:20.00; b:18.00;,1,31,22315
+a b,value:a property:b,b a,,,a:4.00; b:5.00;,1,5,21386
+a b c,prop:a type:b val:c,b a c,,,a:5.00; b:1.00; c:5.00;,2,1 6,98136
+a b,value:a property:b,b a,,,a:5.00; b:6.00;,1,6,23210
+a b c,prop:a type:b val:c,b a c,,,a:8.00; b:1.00; c:70.00;,2,1 71,101585
+a b,p:a o:b,b a,,,a:5.00; b:66.00;,1,70,26044
+a b,value:a property:b,b a,,,a:9.00; b:10.00;,1,10,30621
+a b c,prop:a type:b val:c,b a c,,,a:8.00; b:1.00; c:8.00;,2,1 9,106227
+a b,value:a property:b,b a,,,a:389.00; b:13.00;,1,390,46207
+a b,value:a property:b,b a,,,a:3.00; b:4.00;,1,4,32116
+a b c,prop:a type:b val:c,b a c,,,a:5.00; b:1.00; c:39.00;,2,1 43,132488
+a b,value:a property:b,b a,,,a:1.00; b:1.00;,1,1,27389
+a b,value:a property:b,b a,,,a:1.00; b:1.00;,1,1,27231
+a b c,prop:a type:b val:c,b a c,,,a:5.00; b:1.00; c:5.00;,2,1 6,125782
+a b,value:a property:b,b a,,,a:6.00; b:7.00;,1,7,39911
+a b,value:a property:b,b a,,,a:18.00; b:12.00;,1,20,24511
+a b,value:a property:b,b a,,,a:5.00; b:5.00;,1,5,49593
+a b,value:a property:b,b a,,,a:6.00; b:6.00;,1,7,27777
+a b,value:a property:b,b a,,,a:2.00; b:2.00;,1,2,28881
+a b c,prop:a type:b val:c,b a c,,,a:5.00; b:1.00; c:4.00;,2,1 5,164927
+a b c,prop:a type:b val:c,b a c,,,a:5.00; b:1.00; c:6.00;,2,1 8,136333
+a b,value:a property:b,b a,,,a:14.00; b:10.00;,1,15,27391
+a b c,prop:a type:b val:c,b a c,,,a:5.00; b:1.00; c:94.00;,2,1 95,119043
+a b,value:a property:b,b a,,,a:14.00; b:10.00;,1,15,29373
+a b c,prop:a type:b val:c,b a c,,,a:5.00; b:1.00; c:6.00;,2,1 7,104621
+a b c,prop:a type:b val:c,b a c,,,a:9.00; b:1.00; c:132.00;,2,1 138,97285
+a b,value:a property:b,b a,,,a:5.00; b:5.00;,1,5,34507
+a b,value:a property:b,b a,,,a:2.00; b:2.00;,1,2,32293
+a b c,prop:a type:b val:c,b a c,,,a:5.00; b:1.00; c:11.00;,2,1 12,121612
+a b,value:a property:b,b a,,,a:56.00; b:18.00;,1,61,32779
+a b c,prop:a type:b val:c,b a c,,,a:5.00; b:1.00; c:26.00;,2,1 27,160222
+a b c,prop:a type:b val:c,b a c,,,a:5.00; b:1.00; c:14.00;,2,1 17,117142
+a b,value:a property:b,b a,,,a:129.00; b:10.00;,1,163,30157
+a b c,prop:a type:b val:c,b a c,,,a:5.00; b:1.00; c:6.00;,2,1 7,140039
+a b,value:a property:b,b a,,,a:7.00; b:5.00;,1,8,28620
+a b,value:a property:b,b a,,,a:248.00; b:4.00;,1,248,27915
+a b c,prop:a type:b val:c,b a c,,,a:5.00; b:1.00; c:6.00;,2,1 7,116324
+a b,value:a property:b,b a,,,a:2.00; b:2.00;,1,2,31373
+a b,value:a property:b,b a,,,a:6.00; b:7.00;,1,7,35813
+a b c,prop:a type:b val:c,b a c,,,a:5.00; b:1.00; c:12.00;,2,1 14,129633
+a b,value:a property:b,b a,,,a:2.00; b:2.00;,1,2,54877
+a b c,prop:a type:b val:c,b a c,,,a:5.00; b:1.00; c:6.00;,2,1 7,114142
+a b c,prop:a type:b val:c,b a c,,,a:5.00; b:1.00; c:11.00;,2,1 12,107611
+a b c,prop:a type:b val:c,b a c,,,a:5.00; b:1.00; c:4.00;,2,1 5,141452
