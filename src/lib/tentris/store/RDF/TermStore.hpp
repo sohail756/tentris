@@ -20,15 +20,15 @@ namespace tentris::store::rdf {
 		using Term = Dice::rdf::Term;
 	public:
 		size_t operator()(Term const  &term) const {
-			return ::Dice::hash::dice_hash(term);
+			return Dice::hash::DiceHashwyhash<Term>()(term);
 		}
 
 		size_t operator()(std::unique_ptr<Term> const &term_ptr) const {
-			return ::Dice::hash::dice_hash(*term_ptr);
+			return Dice::hash::DiceHashwyhash<Term>()(*term_ptr);
 		}
 
 		size_t operator()(Term const *const term_ptr) const {
-			return ::Dice::hash::dice_hash(*term_ptr);
+			return Dice::hash::DiceHashwyhash<Term>()(*term_ptr);
 		}
 	};
 
@@ -133,4 +133,3 @@ struct fmt::formatter<tentris::store::rdf::TermStore> {
 
 
 #endif //TENTRIS_STORE_RDFTERMINDEX
-
