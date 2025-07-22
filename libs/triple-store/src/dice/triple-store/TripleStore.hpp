@@ -19,13 +19,16 @@ namespace dice::triple_store {
 		using const_BoolHypertrie = rdf_tensor::const_BoolHypertrie;
 		using Key = rdf_tensor::Key;
 		using htt_t = rdf_tensor::htt_t;
+		// using q = rdf_tensor::Query::Query;
 
 	public:
 		using HypertrieBulkInserter = rdf_tensor::HypertrieBulkInserter;
 		using allocator_type = rdf_tensor::allocator_type;
 
+
 	private:
 		BoolHypertrie &hypertrie_;
+		std::vector<const_BoolHypertrie> query_operands_;
 
 	public:
 		explicit TripleStore(BoolHypertrie &hypertrie);
@@ -33,6 +36,8 @@ namespace dice::triple_store {
 		[[nodiscard]] BoolHypertrie const &get_hypertrie() const {
 			return hypertrie_;
 		}
+
+		const std::vector<const_BoolHypertrie> &get_query_operands(const rdf_tensor::BoolHypertrie &rdf_tensor, const std::vector<rdf_tensor::SliceKey> &slice_keys);
 
 		/**
 		 * This function enforces stricter requirements upon rdf:Lists than described in <a href="https://www.w3.org/TR/2014/REC-rdf11-mt-20140225/#rdf-containers">D.3 RDF collections</a>.
@@ -74,7 +79,8 @@ namespace dice::triple_store {
 		 */
 		std::generator<rdf_tensor::Entry const &>
 		eval_select(const sparql2tensor::SPARQLQuery &query,
-					std::chrono::steady_clock::time_point endtime = std::chrono::steady_clock::time_point::max()) const;
+					std::chrono::steady_clock::time_point endtime = std::chrono::steady_clock::time_point::max(),
+					const std::vector<std::string> &query_plan = {}) const;
 
 		/**
 		 * @brief Evaluation of SPARQL ASK queries.

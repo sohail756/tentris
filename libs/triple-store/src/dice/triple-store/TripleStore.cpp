@@ -108,13 +108,26 @@ namespace dice::triple_store {
 		return operands;
 	}
 
-	std::generator<rdf_tensor::Entry const &> TripleStore::eval_select(const sparql2tensor::SPARQLQuery &query, std::chrono::steady_clock::time_point endtime) const {
+	const std::vector<rdf_tensor::const_BoolHypertrie> &TripleStore::get_query_operands(const rdf_tensor::BoolHypertrie &rdf_tensor, const std::vector<rdf_tensor::SliceKey> &slice_keys) {
+		query_operands_ = generate_operands(rdf_tensor, slice_keys);
+		return query_operands_;
+	}
+	std::generator<rdf_tensor::Entry const &> TripleStore::eval_select(const sparql2tensor::SPARQLQuery &query, std::chrono::steady_clock::time_point endtime,
+		const std::vector<std::string> &query_plan) const {
+
 		auto operands = generate_operands(hypertrie_, query.get_slice_keys());
 		std::vector<char> proj_vars_id{};
 		for (auto const &proj_var : query.projected_variables_) {
 			proj_vars_id.push_back(query.var_to_id_.at(proj_var));
 		}
 		rdf_tensor::Query q{query.odg_, operands, proj_vars_id, endtime};
+
+		// Add query plan variables as hints
+		for (const auto &var_name : query_plan) {
+			auto var = rdf4cpp::rdf::query::Variable::make_named(var_name);
+			q.add_query_hint_variable(query.var_to_id_.at(var));
+		}
+
 		if (query.distinct_) {
 			rdf_tensor::Entry entry;
 			entry.key().resize(query.projected_variables_.size());

@@ -7,6 +7,8 @@ find_package(restinio REQUIRED)
 find_package(spdlog REQUIRED)
 find_package(cppitertools REQUIRED)
 find_package(RapidJSON REQUIRED)
+find_package(nlohmann_json REQUIRED)
+find_package(CURL REQUIRED)
 
 add_library(${lib}
         src/dice/endpoint/HTTPServer.cpp
@@ -34,6 +36,8 @@ target_link_libraries(${lib} PUBLIC
         spdlog::spdlog
         cppitertools::cppitertools
         rapidjson
+        nlohmann_json::nlohmann_json
+        CURL::libcurl
         )
 
 include(${CMAKE_SOURCE_DIR}/cmake/install_components.cmake)
